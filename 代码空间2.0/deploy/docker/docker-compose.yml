@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: cryptoquest-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cryptoquest
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ../../backend/src/main/resources/db/migration:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ../../backend
+    container_name: cryptoquest-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cryptoquest?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ../../frontend
+    container_name: cryptoquest-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

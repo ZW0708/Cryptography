@@ -1,0 +1,47 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Node / 前端
+node_modules/
+dist/
+.vite/
+*.local
+
+# 环境与密钥
+.env
+.env.*
+!.env.example
+application-local.yml
+
+# 日志与运行时
+*.log
+logs/
+*.pid
+
+# OS
+Thumbs.db
+.DS_Store
+
+# 数据库本地文件
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Docker 运行时卷
+deploy/docker/data/
+# 自包含工具环境（JDK / Maven 本地副本）
+.tools/

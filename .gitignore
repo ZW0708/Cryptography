@@ -1,0 +1,25 @@
+# 本仓库只纳入 代码空间2.0（Java 版）作为主项目
+
+# 旧版 Python 实现，保留在本地不入库
+/代码空间/
+
+# 交付/规划文档与素材
+/delivery/
+/*.png
+/*.doc
+/*.docx
+/*.md
+
+# 身份信息等敏感材料
+/身份信息文档.docx
+
+# 工具与本地环境
+/.venv/
+/.arts/
+/.opencode/
+/.codeartsdoer/
+
+# 运行时残留
+*.pid
+*.log
+logs/
