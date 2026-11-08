@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  application:
+    name: cryptoquest
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+  jackson:
+    default-property-inclusion: non_null
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+cryptoquest:
+  jwt:
+    secret: dev-secret-please-change-to-32+chars-in-prod-0000
+    expiration-ms: 86400000
+  ai:
+    maas:
+      endpoint: ${CRYPTOQUEST_AI_MAAS_ENDPOINT:}
+      api-key: ${CRYPTOQUEST_AI_MAAS_API_KEY:}
+    fallback:
+      enabled: false
+
+logging:
+  level:
+    com.jinling.cryptoquest: INFO
