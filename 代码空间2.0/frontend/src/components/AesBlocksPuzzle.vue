@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import TermTip from '@/components/TermTip.vue'
 
-const emit = defineEmits<{ solved: [text: string] }>()
+const emit = defineEmits<{ solved: [text: string]; state: [payload: Record<string, string>] }>()
 
 const ORIGINAL = [0x32, 0x88, 0x31, 0xe0, 0x43, 0x5a, 0x31, 0x37, 0xf6, 0x30, 0x98, 0x07, 0xa8, 0x8d, 0xa2, 0x34]
 const KEY_PRESETS = [
@@ -130,6 +130,18 @@ function confirm() {
   submitted.value = true
   emit('solved', 'aes-demo')
 }
+
+watch(
+  [stepIndex, keyByte, message, changed],
+  () =>
+    emit('state', {
+      stepIndex: String(stepIndex.value),
+      keyByte: '0x' + hex(keyByte.value),
+      message: message.value,
+      changedCount: String(changed.value.length)
+    }),
+  { immediate: true, deep: true }
+)
 </script>
 
 <template>

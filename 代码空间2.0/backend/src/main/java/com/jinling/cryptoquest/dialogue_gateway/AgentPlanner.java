@@ -40,24 +40,36 @@ public class AgentPlanner {
         Set<String> tools = new LinkedHashSet<>();
         tools.add("level_context");
         String intent = AgentPlan.INTENT_HINT;
+        boolean matched = false;
 
         if (containsAny(question, FREQUENCY_WORDS)) {
             tools.add("frequency_analysis");
             intent = AgentPlan.INTENT_TROUBLESHOOT;
+            matched = true;
         }
         if (containsAny(question, HASH_WORDS)) {
             tools.add("hash_prefix");
             intent = AgentPlan.INTENT_TROUBLESHOOT;
+            matched = true;
         }
         if (containsAny(question, CONCEPT_WORDS)) {
             tools.add("knowledge_search");
             intent = AgentPlan.INTENT_CONCEPT;
+            matched = true;
         }
-        if (containsAny(question, STUCK_WORDS) || tools.size() == 1) {
+        if (containsAny(question, STUCK_WORDS)) {
             tools.add("user_progress");
-            if (tools.size() == 2) {
+            if (!AgentPlan.INTENT_CONCEPT.equals(intent)) {
                 intent = AgentPlan.INTENT_TROUBLESHOOT;
             }
+            matched = true;
+        }
+        if (!matched) {
+            tools.add("user_progress");
+            intent = AgentPlan.INTENT_TROUBLESHOOT;
+        }
+        if (ctx.puzzleState() != null && !ctx.puzzleState().isEmpty()) {
+            tools.add("puzzle_state");
         }
 
         List<String> ordered = new ArrayList<>(tools);

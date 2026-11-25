@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount, watch } from 'vue'
 import TermTip from '@/components/TermTip.vue'
 
-const emit = defineEmits<{ solved: [text: string] }>()
+const emit = defineEmits<{ solved: [text: string]; state: [payload: Record<string, string>] }>()
+
 
 /* ---------- ① 雪崩效应 ---------- */
 const snowInput = ref('hello')
@@ -138,6 +139,18 @@ onBeforeUnmount(() => {
 })
 
 const elapsedSec = computed(() => (elapsedMs.value / 1000).toFixed(1))
+
+watch(
+  [snowInput, snowHash, avalancheDone, attempts],
+  () =>
+    emit('state', {
+      text: snowInput.value,
+      hash: snowHash.value,
+      avalancheDone: avalancheDone.value ? 'yes' : 'no',
+      attempts: String(attempts.value)
+    }),
+  { immediate: true }
+)
 </script>
 
 <template>

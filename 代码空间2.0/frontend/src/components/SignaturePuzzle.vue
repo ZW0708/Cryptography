@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import TermTip from '@/components/TermTip.vue'
 
-const emit = defineEmits<{ solved: [text: string] }>()
+const emit = defineEmits<{ solved: [text: string]; state: [payload: Record<string, string>] }>()
 
 const ORIGINAL = '转账 100 元给 Alice'
 const message = ref(ORIGINAL)
@@ -75,6 +75,18 @@ const segPairs = computed(() => {
 })
 
 const diffSegments = computed(() => segPairs.value.filter((p) => !p.match).length)
+
+watch(
+  [message, verified, step1Done, step2Done],
+  () =>
+    emit('state', {
+      text: message.value,
+      verified: verified.value === null ? 'unknown' : String(verified.value),
+      step1: step1Done.value ? 'done' : 'todo',
+      step2: step2Done.value ? 'done' : 'todo'
+    }),
+  { immediate: true }
+)
 </script>
 
 <template>

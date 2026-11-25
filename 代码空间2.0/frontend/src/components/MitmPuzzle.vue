@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import TermTip from '@/components/TermTip.vue'
 
-const emit = defineEmits<{ solved: [text: string] }>()
+const emit = defineEmits<{ solved: [text: string]; state: [payload: Record<string, string>] }>()
 
 const mode = ref<'demo' | 'attack'>('demo')
 const demoStep = ref(0)
@@ -88,6 +88,18 @@ function confirm() {
   submitted.value = true
   emit('solved', 'mitm-success')
 }
+
+watch(
+  [mode, demoStep, stage, failedAttempt],
+  () =>
+    emit('state', {
+      mode: mode.value,
+      demoStep: String(demoStep.value),
+      stage: String(stage.value),
+      failedAttempt: failedAttempt.value || '无'
+    }),
+  { immediate: true }
+)
 </script>
 
 <template>

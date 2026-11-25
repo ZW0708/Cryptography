@@ -7,6 +7,7 @@ import com.jinling.cryptoquest.dialogue_gateway.tools.FrequencyAnalysisTool;
 import com.jinling.cryptoquest.dialogue_gateway.tools.HashPrefixTool;
 import com.jinling.cryptoquest.dialogue_gateway.tools.KnowledgeSearchTool;
 import com.jinling.cryptoquest.dialogue_gateway.tools.ProgressTool;
+import com.jinling.cryptoquest.dialogue_gateway.tools.PuzzleStateTool;
 import com.jinling.cryptoquest.model.dto.AgentChatRequest;
 import com.jinling.cryptoquest.model.dto.AgentChatResponse;
 import com.jinling.cryptoquest.model.dto.RegisterRequest;
@@ -47,6 +48,7 @@ class AgentChatFlowTest {
     @Autowired HashPrefixTool hashPrefixTool;
     @Autowired KnowledgeSearchTool knowledgeSearchTool;
     @Autowired ProgressTool progressTool;
+    @Autowired PuzzleStateTool puzzleStateTool;
 
     @Test
     void stuckQuestionRunsToolsAndPersistsTrace() {
@@ -138,6 +140,32 @@ class AgentChatFlowTest {
         String out = progressTool.execute(new AgentToolInput(userId, 1L, "", 1, Map.of()));
         assertTrue(out.contains("解锁") || out.contains("通关"));
         assertTrue(out.contains("整体已通关"));
+    }
+
+    @Test
+    void puzzleStateToolReportsReadableStateAndFiltersSecrets() {
+        String out = puzzleStateTool.execute(new AgentToolInput(1L, 1L, "", 1,
+            Map.of("ciphertext", "KHHOOR", "shift", "3", "answer", "SECRET")));
+        assertTrue(out.contains("当前位移=3"));
+        assertTrue(out.contains("密文=KHHOOR"));
+        assertFalse(out.contains("SECRET"), "敏感键必须被过滤，防止前端误传泄底");
+    }
+
+    @Test
+    void puzzleStateToolHandlesEmptyState() {
+        String out = puzzleStateTool.execute(new AgentToolInput(1L, 1L, "", 1, Map.of()));
+        assertTrue(out.contains("没有拿到"));
+    }
+
+    @Test
+    void agentUsesPuzzleStateWhenFrontendReportsIt() {
+        Long userId = register("agentState");
+        AgentChatResponse resp = agentChatService.chat(userId,
+            new AgentChatRequest(1L, "我卡住了", 0, Map.of("ciphertext", "KHHOOR", "shift", "3")));
+
+        assertTrue(resp.tools().stream().anyMatch(t -> "puzzle_state".equals(t.tool())),
+            "前端上报状态时应调用 puzzle_state");
+        assertTrue(resp.content().contains("当前位移=3"), "回答应基于用户当前操作状态");
     }
 
     private Long register(String name) {

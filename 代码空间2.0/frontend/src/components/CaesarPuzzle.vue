@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount, watch } from 'vue'
 import TermTip from '@/components/TermTip.vue'
 import { useToast } from '@/composables/useToast'
 
-const emit = defineEmits<{ solved: [text: string] }>()
+const emit = defineEmits<{ solved: [text: string]; state: [payload: Record<string, string>] }>()
 const { toast } = useToast()
 
 const CIPHER = 'PHHW PH DW WKH ROG OLEUDUB DW VLA RFORFN. EULQJ WKH VHFUHW ERRN'
@@ -100,6 +100,17 @@ function confirm() {
   submitted.value = true
   emit('solved', ANSWER)
 }
+
+watch(
+  [shift, readable],
+  () =>
+    emit('state', {
+      ciphertext: CIPHER,
+      shift: String(shift.value),
+      readable: readable.value ? 'yes' : 'no'
+    }),
+  { immediate: true }
+)
 
 onBeforeUnmount(() => {
   if (bruteTimer) clearInterval(bruteTimer)

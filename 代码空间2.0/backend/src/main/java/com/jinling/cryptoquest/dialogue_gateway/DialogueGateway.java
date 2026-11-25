@@ -141,6 +141,7 @@ public class DialogueGateway {
         String hint = promptTemplate.renderFallback(ctx.levelId(), plan.hintLevel());
         StringBuilder sb = new StringBuilder();
         appendFact(sb, facts, "user_progress");
+        appendFact(sb, facts, "puzzle_state");
         appendFact(sb, facts, "frequency_analysis");
         appendFact(sb, facts, "hash_prefix");
         String knowledge = facts.get("knowledge_search");

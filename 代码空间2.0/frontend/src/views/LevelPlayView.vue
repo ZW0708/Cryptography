@@ -25,6 +25,7 @@ const showSummary = ref(false)
 const summaryText = ref('')
 const hintUsed = ref(0)
 const submitting = ref(false)
+const puzzleState = ref<Record<string, string>>({})
 
 const level = computed(() => store.findLevel(levelId.value))
 
@@ -95,6 +96,10 @@ async function doSubmit(text: string) {
 function onSolved(text: string) {
   doSubmit(text)
 }
+
+function onPuzzleState(payload: Record<string, string>) {
+  puzzleState.value = payload
+}
 </script>
 
 <template>
@@ -121,7 +126,7 @@ function onSolved(text: string) {
     </div>
 
     <!-- 可视化角色扮演解题：完成操作后由组件提交，不直接输入答案 -->
-    <component :is="puzzle" v-if="puzzle" @solved="onSolved" />
+    <component :is="puzzle" v-if="puzzle" @solved="onSolved" @state="onPuzzleState" />
     <div v-else class="card"><p class="muted" style="margin: 0">关卡内容暂不可用，请返回关卡列表重新进入。</p></div>
 
     <div class="card">
@@ -137,6 +142,7 @@ function onSolved(text: string) {
       v-if="showHint && level"
       :level-id="level.id"
       :level-title="level.title"
+      :puzzle-state="puzzleState"
       @close="showHint = false"
       @hint-used="hintUsed++"
     />
