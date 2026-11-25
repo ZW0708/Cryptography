@@ -1,12 +1,12 @@
 package com.jinling.cryptoquest.dialogue_gateway.tools;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
 
 /**
  * 交互状态工具：把前端上报的关卡操作状态（转盘位移、输入文本、攻击步骤等）

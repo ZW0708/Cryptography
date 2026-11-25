@@ -30,9 +30,25 @@ public class MaasClient {
         this.endpoint = endpoint;
         this.apiKey = apiKey;
         this.model = model;
-        this.restClient = RestClient.builder()
-            .requestFactory(new org.springframework.http.client.SimpleClientHttpRequestFactory())
-            .build();
+        var factory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(5));
+        factory.setReadTimeout(Duration.ofSeconds(30));
+        this.restClient = RestClient.builder().requestFactory(factory).build();
+    }
+
+    /**
+     * 兼容两种写法：base（自动补 /v1/chat/completions）与完整 URL（原样使用），
+     * 避免用户填成 https://xxx/v1 后拼出 /v1/v1/chat/completions。
+     */
+    private String resolveUrl() {
+        String base = endpoint == null ? "" : endpoint.trim().replaceAll("/+$", "");
+        if (base.endsWith("/chat/completions")) {
+            return base;
+        }
+        if (base.endsWith("/v1")) {
+            return base + "/chat/completions";
+        }
+        return base + "/v1/chat/completions";
     }
 
     public boolean isConfigured() {
@@ -58,7 +74,7 @@ public class MaasClient {
                 "temperature", 0.7,
                 "max_tokens", 512
             );
-            String url = endpoint.endsWith("/") ? endpoint + "v1/chat/completions" : endpoint + "/v1/chat/completions";
+            String url = resolveUrl();
             var resp = restClient.post()
                 .uri(url)
                 .header("Authorization", "Bearer " + apiKey)
