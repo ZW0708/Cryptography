@@ -1,0 +1,6 @@
+cryptoquest:
+  ai:
+    maas:
+      endpoint: https://api.deepseek.com
+      api-key: sk-d1e1885069cf41d18b23205705211d47
+      model: deepseek-chat

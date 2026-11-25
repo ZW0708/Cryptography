@@ -25,6 +25,11 @@ dist/
 .env.*
 !.env.example
 application-local.yml
+# 竞赛交付要求：本地 DeepSeek 配置随项目一并提交
+!backend/src/main/resources/application-local.yml
+
+# 工具残留
+.workbuddy/
 
 # 日志与运行时
 *.log
