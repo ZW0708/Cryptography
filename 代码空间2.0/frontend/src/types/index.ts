@@ -33,6 +33,21 @@ export interface HintResponse {
   escalateAvailable: boolean
 }
 
+export interface ToolTrace {
+  tool: string
+  summary: string
+  durationMs: number
+}
+
+export interface AgentChatResponse {
+  hintLevel: number
+  content: string
+  escalateAvailable: boolean
+  intent: string
+  channel: string
+  tools: ToolTrace[]
+}
+
 export interface ApiResponse<T> {
   code: number
   message: string

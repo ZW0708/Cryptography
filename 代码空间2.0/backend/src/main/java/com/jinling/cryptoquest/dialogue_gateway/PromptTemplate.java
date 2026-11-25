@@ -28,6 +28,16 @@ public class PromptTemplate {
             + "\n本关分层提示素材（据此引导，禁止照抄为答案）：\n" + material(levelId, hintLevel);
     }
 
+    /** Agent 模式系统提示：在硬约束之外注入意图判断与工具结果，要求模型据此组织引导语。 */
+    public String renderAgentSystem(Long levelId, int hintLevel, String intent, String toolFacts) {
+        return NO_LEAK_CONSTRAINT.formatted(hintLevel)
+            + "\n\n当前关卡：" + levelTitle(levelId)
+            + "\n意图判断：" + intent
+            + "\n工具结果（可作为事实依据，但不得直接给出答案）：\n"
+            + (toolFacts == null || toolFacts.isBlank() ? "无" : toolFacts)
+            + "\n本关分层提示素材（据此引导，禁止照抄为答案）：\n" + material(levelId, hintLevel);
+    }
+
     public String renderFallback(Long levelId, int hintLevel) {
         return "[L" + hintLevel + "] " + material(levelId, hintLevel);
     }

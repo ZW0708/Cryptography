@@ -26,6 +26,19 @@ public class AiCallLog {
     @Column(length = 2048)
     private String resultHint;
 
+    /** 调用用户与关卡，便于按用户/关卡统计 AI 使用情况。 */
+    private Long userId;
+
+    private Long levelId;
+
+    /** Agent 意图（HINT / CONCEPT / TROUBLESHOOT / REFUSE）。 */
+    @Column(length = 16)
+    private String intent;
+
+    /** 工具调用轨迹摘要（tool=durationMs;...），作为可解释性证据。 */
+    @Column(length = 1024)
+    private String toolTrace;
+
     @Column(nullable = false)
     private LocalDateTime calledAt;
 }

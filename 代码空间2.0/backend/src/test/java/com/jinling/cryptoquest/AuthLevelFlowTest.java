@@ -2,6 +2,7 @@ package com.jinling.cryptoquest;
 
 import com.jinling.cryptoquest.common.BusinessException;
 import com.jinling.cryptoquest.common.HashUtil;
+import com.jinling.cryptoquest.common.LevelAnswers;
 import com.jinling.cryptoquest.model.dto.*;
 import com.jinling.cryptoquest.model.entity.Level;
 import com.jinling.cryptoquest.model.repo.LevelRepository;
@@ -35,7 +36,8 @@ class AuthLevelFlowTest {
         List<Level> levels = levelRepository.findAll();
         assertEquals(5, levels.size(), "seed 应载入 5 关");
         Level l1 = levelRepository.findByCode("L1_CAESAR").orElseThrow();
-        assertEquals(HashUtil.sha256("HELLOWORLD"), l1.getAnswerHash(), "L1 答案哈希应为 SHA-256(HELLOWORLD)");
+        String expectedHash = HashUtil.sha256(LevelAnswers.BY_CODE.get("L1_CAESAR"));
+        assertEquals(expectedHash, l1.getAnswerHash(), "L1 答案哈希应与 LevelAnswers 注册表一致");
     }
 
     @Test
@@ -53,7 +55,7 @@ class AuthLevelFlowTest {
         assertFalse(l1.cleared());
 
         boolean correct = levelService.submitAnswer(userId,
-            new AnswerSubmitRequest(l1.id(), "HELLOWORLD", 120, 0));
+            new AnswerSubmitRequest(l1.id(), LevelAnswers.BY_CODE.get("L1_CAESAR"), 120, 0));
         assertTrue(correct, "正确答案应通关");
 
         ProgressOverview after = levelService.overview(userId);

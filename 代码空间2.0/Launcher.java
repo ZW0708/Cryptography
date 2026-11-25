@@ -1,3 +1,4 @@
+
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,13 +14,10 @@ import java.util.List;
 /**
  * 密码学闯关 · Java 启动器
  *
- * 统一拉起 Spring Boot 后端与 Vite 前端，日志写入 logs/ 目录。
- * - 启动前自动清理上次残留的子进程（直接关窗口也不会导致端口被占）。
- * - 退出时回收子进程树（推荐在窗口内按回车退出；直接关窗口下次启动也会自愈）。
+ * 统一拉起 Spring Boot 后端与 Vite 前端，日志写入 logs/ 目录。 -
+ * 启动前自动清理上次残留的子进程（直接关窗口也不会导致端口被占）。 - 退出时回收子进程树（推荐在窗口内按回车退出；直接关窗口下次启动也会自愈）。
  *
- * 用法：
- *   右键 run.bat
- *   或：java -cp .tools/launcher Launcher
+ * 用法： 右键 run.bat 或：java -cp .tools/launcher Launcher
  */
 public class Launcher {
 
@@ -43,8 +41,7 @@ public class Launcher {
             Files.createDirectories(LOGS);
 
             if (windows && !Files.exists(JAVA_EXE)) {
-                System.err.println("[X] 未找到 .tools/jdk-17，请确认自包含环境存在");
-                return;
+                System.out.println("[!] 未找到内置 JDK（.tools/jdk-17），将使用系统 JDK / Maven");
             }
 
             // 关键：先清理上次残留的后端/前端进程，避免旧进程占住端口
@@ -84,17 +81,19 @@ public class Launcher {
     private static Process startBackend(boolean windows) throws IOException {
         Path backend = ROOT.resolve("backend");
         List<String> cmd = windows
-            ? List.of("cmd.exe", "/c", MVN_CMD.toString(), "spring-boot:run")
-            : List.of("mvn", "spring-boot:run");
+                ? List.of("cmd.exe", "/c", MVN_CMD.toString(), "spring-boot:run")
+                : List.of("mvn", "spring-boot:run");
         if (windows && !Files.exists(MVN_CMD)) {
             cmd = List.of("cmd.exe", "/c", "mvn", "spring-boot:run");
         }
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(backend.toFile());
-        pb.environment().put("JAVA_HOME", JDK.toString());
-        String oldPath = pb.environment().getOrDefault("PATH", "");
-        pb.environment().put("PATH", JDK.resolve("bin") + ";" + oldPath);
+        if (Files.exists(JAVA_EXE)) {
+            pb.environment().put("JAVA_HOME", JDK.toString());
+            String oldPath = pb.environment().getOrDefault("PATH", "");
+            pb.environment().put("PATH", JDK.resolve("bin") + ";" + oldPath);
+        }
         redirect(pb, LOGS.resolve("backend.log"));
 
         Process p = pb.start();
@@ -107,14 +106,14 @@ public class Launcher {
         if (!Files.exists(frontend.resolve("node_modules"))) {
             System.out.println("[..] 首次运行，安装前端依赖（npm install）...");
             runBlocking(windows
-                ? List.of("cmd.exe", "/c", "npm", "install")
-                : List.of("npm", "install"),
-                frontend, LOGS.resolve("npm-install.log"));
+                    ? List.of("cmd.exe", "/c", "npm", "install")
+                    : List.of("npm", "install"),
+                    frontend, LOGS.resolve("npm-install.log"));
         }
 
         List<String> cmd = windows
-            ? List.of("cmd.exe", "/c", "npm", "run", "dev")
-            : List.of("npm", "run", "dev");
+                ? List.of("cmd.exe", "/c", "npm", "run", "dev")
+                : List.of("npm", "run", "dev");
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(frontend.toFile());
@@ -142,11 +141,17 @@ public class Launcher {
         pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log.toFile()));
     }
 
-    /** 读取上次记录的子进程 PID，逐个强制结束（自愈：直接关窗口导致的残留）。 */
+    /**
+     * 读取上次记录的子进程 PID，逐个强制结束（自愈：直接关窗口导致的残留）。
+     */
     private static void cleanupStale(String name) {
-        if (!isWindows()) return;
+        if (!isWindows()) {
+            return;
+        }
         Path pidFile = LOGS.resolve(name + ".pids");
-        if (!Files.exists(pidFile)) return;
+        if (!Files.exists(pidFile)) {
+            return;
+        }
         try {
             String content = Files.readString(pidFile).trim();
             if (!content.isEmpty()) {
@@ -164,7 +169,9 @@ public class Launcher {
         }
     }
 
-    /** 守护线程：定期把当前子进程树（含 mvn 派生的 java / node）PID 写盘，供下次启动清理。 */
+    /**
+     * 守护线程：定期把当前子进程树（含 mvn 派生的 java / node）PID 写盘，供下次启动清理。
+     */
     private static void startPidRecorder() {
         Thread recorder = new Thread(() -> {
             while (true) {
@@ -178,7 +185,9 @@ public class Launcher {
     }
 
     private static void savePids(String name, Process p) {
-        if (p == null || !p.isAlive()) return;
+        if (p == null || !p.isAlive()) {
+            return;
+        }
         try {
             StringBuilder sb = new StringBuilder(String.valueOf(p.pid()));
             p.descendants().forEach(h -> sb.append(",").append(h.pid()));
@@ -218,7 +227,9 @@ public class Launcher {
     }
 
     private static void killProcess(Process p) {
-        if (p == null) return;
+        if (p == null) {
+            return;
+        }
         try {
             p.descendants().forEach(ProcessHandle::destroy);
             p.destroy();

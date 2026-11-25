@@ -16,7 +16,7 @@
 - 前端：`cd frontend && npm install && npm run dev`
 - 后端构建：`cd backend && mvn clean package -DskipTests`
 - 后端测试：`cd backend && mvn test`
-- seed 关卡：`cd backend && mvn spring-boot:run -Dspring-boot.run.arguments=--seed`（待实现）
+- seed 关卡：应用启动时由 `DataInitializer` 自动从 `resources/data/levels.json` 幂等 upsert，无需额外命令
 
 ## 分层约定（后端）
 - `api/v1/` 控制器层：协议转换 + 校验，不含业务逻辑

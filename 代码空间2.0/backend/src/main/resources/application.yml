@@ -27,8 +27,10 @@ springdoc:
 
 cryptoquest:
   jwt:
-    secret: dev-secret-please-change-to-32+chars-in-prod-0000
+    secret: ${CRYPTOQUEST_JWT_SECRET:dev-secret-please-change-to-32+chars-in-prod-0000}
     expiration-ms: 86400000
+  admin:
+    bootstrap-password: ${CRYPTOQUEST_ADMIN_BOOTSTRAP_PASSWORD:}
   ai:
     maas:
       endpoint: ${CRYPTOQUEST_AI_MAAS_ENDPOINT:}

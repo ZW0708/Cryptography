@@ -5,7 +5,7 @@ import { useProgressStore } from '@/stores/progress'
 import { levelApi } from '@/api/level'
 import { answerApi } from '@/api/answers'
 import { useToast } from '@/composables/useToast'
-import HintDialog from '@/components/HintDialog.vue'
+import AgentChatPanel from '@/components/AgentChatPanel.vue'
 import ConceptCard from '@/components/ConceptCard.vue'
 import CipherConfetti from '@/components/CipherConfetti.vue'
 import CaesarPuzzle from '@/components/CaesarPuzzle.vue'
@@ -122,20 +122,21 @@ function onSolved(text: string) {
 
     <!-- 可视化角色扮演解题：完成操作后由组件提交，不直接输入答案 -->
     <component :is="puzzle" v-if="puzzle" @solved="onSolved" />
-    <div v-else class="card"><p class="muted" style="margin: 0">该关卡交互组件待实现。</p></div>
+    <div v-else class="card"><p class="muted" style="margin: 0">关卡内容暂不可用，请返回关卡列表重新进入。</p></div>
 
     <div class="card">
       <div class="row wrap">
-        <button class="secondary" @click="showHint = true">💡 求助 AI 提示</button>
+        <button class="secondary" @click="showHint = true">💡 咨询 AI 助教</button>
         <span class="muted" style="font-size: 12px">
           完成可视化操作后点击「提交」即可通关；通关后可在「答案」页复盘思路与答案。
         </span>
       </div>
     </div>
 
-    <HintDialog
+    <AgentChatPanel
       v-if="showHint && level"
       :level-id="level.id"
+      :level-title="level.title"
       @close="showHint = false"
       @hint-used="hintUsed++"
     />
